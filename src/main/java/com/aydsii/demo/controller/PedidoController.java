@@ -1,6 +1,5 @@
 package com.aydsii.demo.controller;
 
-import com.aydsii.demo.dto.ApiResponse;
 import com.aydsii.demo.dto.PedidoRequestDTO;
 import com.aydsii.demo.dto.PedidoEstadoDTO;
 import com.aydsii.demo.dto.PedidoResponseDTO;
@@ -54,18 +53,14 @@ public class PedidoController {
     @Operation(summary = "Comprar",
             description = "Convierte el carrito activo del cliente en un pedido: valida stock, "
                     + "descuenta inventario, registra el pago y el envío (si corresponde) y cierra el carrito.")
-    //respuesta HTTP, cuyo body es un ApiResponse, cuyo data es un PedidoResponseDTO”. Se hace para no meter data equivocada
-    public ResponseEntity<ApiResponse<PedidoResponseDTO>> comprarPedido(
+    //respuesta HTTP, cuya data es un PedidoResponseDTO”. Se hace para no meter data equivocada
+    public ResponseEntity<PedidoResponseDTO> comprarPedido(
             @Valid @RequestBody PedidoRequestDTO pedidoRequestDTO) {
-
         log.debug("POST /api/pedidos/comprar - request: {}", pedidoRequestDTO);
 
         PedidoResponseDTO pedidoCreado = pedidoService.comprarPedido(pedidoRequestDTO);
 
-        ApiResponse<PedidoResponseDTO> apiResponse =
-                ApiResponse.success(HttpStatus.CREATED.value(), "Pedido creado correctamente", pedidoCreado);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(pedidoCreado);
     }
 
     /**
@@ -79,7 +74,7 @@ public class PedidoController {
     @Operation(summary = "Listar pedidos del cliente",
             description = "Devuelve un resumen (id, fecha, total, estado) de todos los pedidos del cliente, "
                     + "del más reciente al más antiguo. Si no tiene pedidos devuelve una lista vacía (HTTP 200).")
-    public ResponseEntity<ApiResponse<List<PedidoResumenDTO>>> listarPedidosDelCliente(
+    public ResponseEntity<List<PedidoResumenDTO>> listarPedidosDelCliente(
             @Parameter(description = "ID del cliente que consulta", example = "1")
             @RequestParam("clienteId") Long clienteId) {
 
@@ -89,16 +84,8 @@ public class PedidoController {
         List<PedidoResumenDTO> pedidos = pedidoService.listarPedidosDelCliente(clienteId);
 
         // FE-01 (lista vacía) y flujo normal responden 200; solo cambia el mensaje
-        String mensaje = pedidos.isEmpty()
-                ? "El cliente no tiene pedidos registrados"
-                : "Pedidos obtenidos correctamente";
-
-        // Pasos 6/10: success(200, mensaje, lista)
-        ApiResponse<List<PedidoResumenDTO>> apiResponse =
-                ApiResponse.success(HttpStatus.OK.value(), mensaje, pedidos);
-
-        // Paso 12-13: ResponseEntity.status(200).body(apiResponse) -> HTTP 200 + JSON
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+        // Paso 12-13: ResponseEntity.status(200).body(pedidos) -> HTTP 200 + JSON
+        return ResponseEntity.status(HttpStatus.OK).body(pedidos);
     }
 
     /**
@@ -113,7 +100,7 @@ public class PedidoController {
     @Operation(summary = "Consultar estado de un pedido",
             description = "Devuelve estado, datos generales, detalles, pagos y envío (si corresponde) "
                     + "de un pedido del cliente. Responde 404 si el pedido no existe o no es del cliente.")
-    public ResponseEntity<ApiResponse<PedidoEstadoDTO>> obtenerEstadoPedido(
+    public ResponseEntity<PedidoEstadoDTO> obtenerEstadoPedido(
             @Parameter(description = "ID del pedido a consultar", example = "1")
             //El id que tendra que leer, es decir si la URL es /api/pedidos/5, lee el 5
             @PathVariable("id") Long id,
@@ -125,11 +112,7 @@ public class PedidoController {
         // Paso 15: delega en el service (puede lanzar PedidoNoEncontradoException -> 404)
         PedidoEstadoDTO estadoDTO = pedidoService.obtenerEstadoPedido(id, clienteId);
 
-        // Paso 28: success(200, mensaje, estadoDTO)
-        ApiResponse<PedidoEstadoDTO> apiResponse =
-                ApiResponse.success(HttpStatus.OK.value(), "Estado del pedido obtenido correctamente", estadoDTO);
-
-        // Paso 30-31: ResponseEntity.status(200).body(apiResponse) -> HTTP 200 + JSON
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+        // Paso 30-31: ResponseEntity.status(200).body(estadoDTO) -> HTTP 200 + JSON
+        return ResponseEntity.status(HttpStatus.OK).body(estadoDTO);
     }
 }
