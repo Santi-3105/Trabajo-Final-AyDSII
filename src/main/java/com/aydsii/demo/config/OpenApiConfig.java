@@ -17,6 +17,6 @@ public class OpenApiConfig {
         return new OpenAPI().info(new Info()
                 .title("Trabajo Final AyDS II - API")
                 .version("1.0")
-                .description("API del caso de uso Comprar"));
+                .description("API del caso de uso Comprar y Consultar estado de pedido"));
     }
 }

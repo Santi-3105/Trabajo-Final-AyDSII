@@ -4,6 +4,7 @@ import com.aydsii.demo.dto.*;
 import com.aydsii.demo.exception.*;
 import com.aydsii.demo.model.*;
 import com.aydsii.demo.repository.*;
+//Nos resuelve de escribir codigo repetitivo una y otra vez, basicamente genera este mediante notaciones en tiempo de compilacion como getters y setters 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,12 @@ import java.util.List;
  *   <li>Consultar estado de pedido: sigue el diagrama GET /api/pedidos y GET /api/pedidos/{id}.</li>
  * </ul>
  */
+
+//Es una anotación de Lombok para crear mensajes automaticos por consolo del tipo log.info, basicamente para detectar errores en caso de fallas
 @Slf4j
+//Indica que es de tipo service
 @Service
+//{ this.x = x; } -> remplaza esta notación y hace exactamente eso de forma automatica, otra anotacion de lombok
 @RequiredArgsConstructor // Inyecta por constructor todos los campos final
 public class PedidoService {
 
@@ -44,13 +49,18 @@ public class PedidoService {
      * @param dto datos de la compra (cliente, medio de pago, tipo de entrega, domicilio)
      * @return resumen del pedido creado
      */
+    //Transacciones, es decir, cuando se termina toda la operacion guarda los cambios. En caso de que no pueda terminarla, los revierte
+    //Esta son manejadas por RuntimeException, solo tenemos que extender nuestras exception de esa clase 
     @Transactional
     public PedidoResponseDTO comprarPedido(PedidoRequestDTO dto) {
+        //dto.algo lo que hace es que una clase inmutable que genera sola constructor, accesores (que se llaman como el campo, sin get), equals, hashCode y toString
+        //En otras palabras, no nos hace falta hacer gets para obtener los datos como idCliente
         log.info("Iniciando compra del cliente {}", dto.idCliente());
 
         // ===== 1. Validar cliente y carrito =====
         // Cliente debe existir y estar activo; si no -> ClienteNoEncontradoException (404)
         Cliente cliente = clienteRepository.findById(dto.idCliente())
+                //Filtro tal que, si el cliente esta activo lo trae, sino lo deja vacio
                 .filter(Cliente::estaActivo)
                 .orElseThrow(() -> new ClienteNoEncontradoException(dto.idCliente()));
 
@@ -148,6 +158,8 @@ public class PedidoService {
      * @param clienteId cliente que consulta
      * @return lista de resúmenes; vacía si el cliente no tiene pedidos (FE-01)
      */
+    //Solo lee, no modifica. Hibernate se ahorra trabajo (no vigila cambios) y la sesión queda abierta durante todo el método
+    //Coincide con nuestro application.properties que tiene spring.jpa.open-in-view=false. Es decir que si se sale de una transaccion, la sesion se cierra apenas vuelva al repo
     @Transactional(readOnly = true)
     public List<PedidoResumenDTO> listarPedidosDelCliente(Long clienteId) {
         log.info("Listando pedidos del cliente {}", clienteId);
@@ -158,6 +170,7 @@ public class PedidoService {
         // FE-01: el cliente no tiene pedidos -> se devuelve listaVacia (el controller responde 200)
         if (pedidos.isEmpty()) {
             log.debug("El cliente {} no tiene pedidos", clienteId);
+            //crea una lista vacia que no se puede modificar 
             return List.of();
         }
 

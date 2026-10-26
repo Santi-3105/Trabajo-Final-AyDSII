@@ -17,6 +17,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "pedidos")
+//lombok, lo mismo, resuelve codigo repetido
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -28,6 +29,7 @@ public class Pedido {
     private Long idPedido;
 
     /** Relación "realiza": un cliente realiza muchos pedidos. */
+    //indica a la base de datos que no traiga los datos de una relación (o colección) hasta que se soliciten explícitamente en el código.
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
@@ -43,6 +45,7 @@ public class Pedido {
     private BigDecimal total = BigDecimal.ZERO;
 
     /** Relación "define": estado actual del pedido. */
+    //indica a la base de datos que no traiga los datos de una relación (o colección) hasta que se soliciten explícitamente en el código.
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_estado", nullable = false)
     private EstadoPedido estado;
@@ -63,6 +66,7 @@ public class Pedido {
      * Relación "genera" (0..1): el envío del pedido, o null si se retira en el local.
      * Lado inverso (mappedBy): la clave foránea vive en la tabla "envios".
      */
+    //indica a la base de datos que no traiga los datos de una relación (o colección) hasta que se soliciten explícitamente en el código.
     @OneToOne(mappedBy = "pedido", fetch = FetchType.LAZY)
     private Envio envio;
 

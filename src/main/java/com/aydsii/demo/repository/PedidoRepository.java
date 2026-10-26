@@ -17,7 +17,9 @@ import java.util.Optional;
  * método coincida con las propiedades, por eso se escriben así
  * ("Cliente_IdCliente" = pedido.cliente.idCliente).
  */
+//Indica que es de tipo repositorio
 @Repository
+//Al extender de JpaRepository nos da metodos como save, findById, findAll, delete, sin tener que escribirlos
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     /**
@@ -30,7 +32,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     /**
      * Busca un pedido por id SOLO si pertenece al cliente indicado (paso 16 del diagrama).
-     * Si el pedido no existe o es de otro cliente devuelve Optional vacío,
+     * Si el pedido no existe o es de otro cliente devuelve Optional vacío (justamente la funcion del optional, puede estar vacio como no),
      * y desde afuera ambos casos se ven igual (404).
      */
     Optional<Pedido> findByIdPedidoAndCliente_IdCliente(Long idPedido, Long idCliente);

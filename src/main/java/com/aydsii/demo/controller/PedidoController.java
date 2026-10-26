@@ -29,10 +29,17 @@ import java.util.List;
  * Solo recibe la solicitud, delega en {@link PedidoService} y arma la respuesta HTTP.
  * Los errores los resuelve el GlobalExceptionHandler.
  */
+
+//
+//Es una anotación de Lombok para crear mensajes automaticos por consolo del tipo log.info, basicamente para detectar errores en caso de fallas
 @Slf4j
+//indica que es un servicio web de tipo RESTful.
 @RestController
+//Como aparecera nuestro endpoint 
 @RequestMapping("/api/pedidos")
+//{ this.x = x; } -> remplaza esta notación y hace exactamente eso de forma automatica, otra anotacion de lombok
 @RequiredArgsConstructor
+//Agrupa endpoints, les da un nombre 
 @Tag(name = "Pedidos", description = "Operaciones sobre pedidos")
 public class PedidoController {
 
@@ -43,9 +50,11 @@ public class PedidoController {
      * {@code @Valid} dispara las validaciones del DTO antes de entrar al método.
      */
     @PostMapping("/comprar")
+    //Describe la operacion que hara 
     @Operation(summary = "Comprar",
             description = "Convierte el carrito activo del cliente en un pedido: valida stock, "
                     + "descuenta inventario, registra el pago y el envío (si corresponde) y cierra el carrito.")
+    //respuesta HTTP, cuyo body es un ApiResponse, cuyo data es un PedidoResponseDTO”. Se hace para no meter data equivocada
     public ResponseEntity<ApiResponse<PedidoResponseDTO>> comprarPedido(
             @Valid @RequestBody PedidoRequestDTO pedidoRequestDTO) {
 
@@ -106,6 +115,7 @@ public class PedidoController {
                     + "de un pedido del cliente. Responde 404 si el pedido no existe o no es del cliente.")
     public ResponseEntity<ApiResponse<PedidoEstadoDTO>> obtenerEstadoPedido(
             @Parameter(description = "ID del pedido a consultar", example = "1")
+            //El id que tendra que leer, es decir si la URL es /api/pedidos/5, lee el 5
             @PathVariable("id") Long id,
             @Parameter(description = "ID del cliente que consulta", example = "1")
             @RequestParam("clienteId") Long clienteId) {
